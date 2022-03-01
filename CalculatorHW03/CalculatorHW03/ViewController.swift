@@ -11,17 +11,21 @@ class ViewController: UIViewController {
 	
 	@IBOutlet weak var calculatorWindow: UILabel!
 
-	var userInput = ""
-	var operation = ""
-	var resultInUsage: Bool = false
-
+	private var userInput = ""
+	private var operation = ""
+	private var resultInUsage = false
+	private var isDecimal = false
+	
 	override func viewDidLoad() {
 		super.viewDidLoad()
 
 		calculatorWindow.text = "0"
 	}
-
+	
 	func monitorExpression(_ enteredNumber: String) {
+		if enteredNumber == "0" && userInput.isEmpty {
+			return
+		}
 		if resultInUsage && operation.isEmpty {
 			userInput = ""
 			resultInUsage = false
@@ -31,43 +35,52 @@ class ViewController: UIViewController {
 	}
 	
 	func enterOperation(_ operationToSet: String) {
-		if userInput.isEmpty {
-			return
+		guard !userInput.isEmpty && operation.isEmpty
+		else { return }
+		if userInput.hasSuffix(".") {
+			userInput += "0"
 		}
-		if !operation.isEmpty {
-			return
-		}
-		else {
-			operation = operationToSet
-			monitorExpression(operationToSet)
-		}
+		operation = operationToSet
+		monitorExpression(operationToSet)
+		isDecimal = false
 	}
 	
+	@IBAction func digits(_ sender: UIButton) {
+		monitorExpression("\(sender.tag)")
+	}
+	
+	// MARK: - Operations
+	
 	@IBAction func equality() {
-		if userInput.isEmpty || userInput.hasSuffix("."){
+		guard !userInput.isEmpty && !operation.isEmpty else {
 			return
+		}
+		if userInput.hasSuffix(".") {
+			userInput += "0"
 		}
 		if userInput.hasSuffix(operation) && operation != "*0.01" {
 			userInput += userInput
 			userInput.removeLast()
 		}
 		let mathExpression = NSExpression(format: userInput)
-		if let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Double {
-			calculatorWindow.text = String(mathValue)
-			userInput = String(mathValue)
-			resultInUsage = true
+		guard let mathValue = mathExpression.expressionValue(with: nil, context: nil) as? Double else {
+			return
 		}
+		calculatorWindow.text = String(mathValue)
+		userInput = String(mathValue)
+		resultInUsage = true
 		operation = ""
+		isDecimal = false
 	}
 	
-// OPERATIONS
 	@IBAction func erase(_ sender: UIButton) {
 		userInput = ""
 		calculatorWindow.text = "0"
+		isDecimal = false
 	}
 	
 	@IBAction func changeSign(_ sender: Any) {
-		if !operation.isEmpty || userInput.isEmpty {
+		guard operation.isEmpty && !userInput.isEmpty else {
 			return
 		}
 		if userInput.starts(with: "-") {
@@ -79,9 +92,9 @@ class ViewController: UIViewController {
 		calculatorWindow.text = userInput
 	}
 
-	
 	@IBAction func convertToPercents(_ sender: UIButton) {
 		enterOperation("*0.01")
+		guard operation == "*0.01" else { return }
 		equality()
 	}
 	
@@ -102,59 +115,14 @@ class ViewController: UIViewController {
 	}
 	
 	@IBAction func decimalSeparator(_ sender: Any) {
-		if userInput.contains(".") {
-			return
-		}
+		guard !isDecimal else { return }
 		if userInput.isEmpty {
 			monitorExpression("0.")
 		}
 		else {
 			monitorExpression(".")
 		}
+		isDecimal = true
 	}
-	
-// NUMBERS
-	@IBAction func seven(_ sender: Any) {
-		monitorExpression("7")
-	}
-	
-	@IBAction func eight(_ sender: Any) {
-		monitorExpression("8")
-	}
-	
-	@IBAction func nine(_ sender: Any) {
-		monitorExpression("9")
-	}
-
-	@IBAction func four(_ sender: Any) {
-		monitorExpression("4")
-	}
-	
-	@IBAction func five(_ sender: Any) {
-		monitorExpression("5")
-	}
-	
-	@IBAction func six(_ sender: Any) {
-		monitorExpression("6")
-	}
-
-	@IBAction func one(_ sender: Any) {
-		monitorExpression("1")
-	}
-	
-	@IBAction func two(_ sender: Any) {
-		monitorExpression("2")
-	}
-	
-	@IBAction func three(_ sender: Any) {
-		monitorExpression("3")
-	}
-
-	@IBAction func zero(_ sender: Any) {
-		if !userInput.isEmpty {
-			monitorExpression("0")
-		}
-	}
-
 }
 
