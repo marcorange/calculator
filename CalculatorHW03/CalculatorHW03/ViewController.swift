@@ -23,10 +23,8 @@ class ViewController: UIViewController {
 	}
 	
 	func monitorExpression(_ enteredNumber: String) {
-		if enteredNumber == "0" {
-			guard !userInput.isEmpty && !resultInUsage else {
-				return
-			}
+		if enteredNumber == "0" && userInput.isEmpty {
+			return
 		}
 		if resultInUsage && operation.isEmpty {
 			userInput = ""
@@ -38,9 +36,7 @@ class ViewController: UIViewController {
 	
 	func enterOperation(_ operationToSet: String) {
 		guard !userInput.isEmpty && operation.isEmpty
-		else {
-			return
-		}
+		else { return }
 		if userInput.hasSuffix(".") {
 			userInput += "0"
 		}
@@ -98,9 +94,7 @@ class ViewController: UIViewController {
 
 	@IBAction func convertToPercents(_ sender: UIButton) {
 		enterOperation("*0.01")
-		guard operation == "*0.01" else {
-			return
-		}
+		guard operation == "*0.01" else { return }
 		equality()
 	}
 	
@@ -121,9 +115,7 @@ class ViewController: UIViewController {
 	}
 	
 	@IBAction func decimalSeparator(_ sender: Any) {
-		guard !isDecimal else {
-			return
-		}
+		guard !isDecimal else { return }
 		if userInput.isEmpty {
 			monitorExpression("0.")
 		}
